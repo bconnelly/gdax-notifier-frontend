@@ -12,7 +12,8 @@
         app.controller('Matches',
             function($scope, $http, $timeout) {
 
-                var lastUpdate = {update: {}};
+                var lastUpdate;
+                var tempMatches = [];
 
                 $scope.updateRows = function(){
                     $http.get('http://localhost:8080/getUpdates/' + lastUpdate['sequence'])
@@ -22,29 +23,41 @@
                             //make sure there's at least one update
                             if(response.data.length > 0) {
 
-                                console.log("RESPONSE DATA: " + response.data);
+//                                console.log("RESPONSE DATA: " + response.data);
 
                                 //add updates to matches variable
-                                $scope.matches.push(response.data);
-                                lastUpdate.update = $scope.matches[0];
+//                                $scope.matches.push(response.data);
+
+                                tempMatches = angular.copy(response.data);
+                                $scope.matches = angular.copy(tempMatches);
+
+//                                $scope.matches = angular.copy(response.data);
+
+                                lastUpdate.update = angular.copy(tempMatches[tempMatches.length - 1]);
+
+                                //clear the variable after we've posted updates
+
 
                                 console.log('Last update: ' + lastUpdate['sequence']);
+                                console.log('Ends of tempMatches: ' + tempMatches[0]['sequence'] + ', ' + tempMatches[tempMatches.length - 1]['sequence']);
                                 console.log('Matches: ' + $scope.matches.length);
                             }
 
 
                             //otherwise, just wait another second
-                            $timeout($scope.updateRows, 5000);
+                            $timeout($scope.updateRows, 1000);
                         })
                 };
 
                 $http.get('http://localhost:8080/getLastN/5/').
                 then(function(response) {
 
-                    $scope.matches = response.data;
+                    tempMatches = angular.copy(response.data);
 
                     //update our marker of the last update we've seen
-                    lastUpdate = $scope.matches[$scope.matches.length - 1];
+                    lastUpdate = angular.copy(tempMatches[tempMatches.length - 1]);
+                    $scope.matches = angular.copy(tempMatches);
+
                     console.log('calling updaterows');
 //                    start updating the table every 5 seconds
                     $scope.updateRows();
