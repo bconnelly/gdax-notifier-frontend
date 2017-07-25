@@ -12,5 +12,7 @@
     <orderEntry type="library" name="angular-resource-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="angular-breadcrumb-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="angular-wizard-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="angular-ui-notification-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="angular" level="application" />
   </component>
 </module>

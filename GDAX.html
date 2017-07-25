@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="demo">
+<html lang="en" ng-app="GDAX">
 <head>
     <meta charset="UTF-8">
     <title>GDAX Prices</title>
@@ -7,22 +7,71 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
 
     <script>
-        var app = angular.module('demo', []);
+        var app = angular.module('GDAX', []);
+
+        app.controller('Matches',
+            function($scope, $http, $timeout) {
+
+                var lastUpdate = {update: {}};
+
+                $scope.updateRows = function(){
+                    $http.get('http://localhost:8080/getUpdates/' + lastUpdate['sequence'])
+                        .then(function(response){
+
+                            //update our marker of the last update we've seen
+                            //make sure there's at least one update
+                            if(response.data.length > 0) {
+
+                                console.log("RESPONSE DATA: " + response.data);
+
+                                //add updates to matches variable
+                                $scope.matches.push(response.data);
+                                lastUpdate.update = $scope.matches[0];
+
+                                console.log('Last update: ' + lastUpdate['sequence']);
+                                console.log('Matches: ' + $scope.matches.length);
+                            }
 
 
-        app.controller('Prices', function($scope, $http) {
+                            //otherwise, just wait another second
+                            $timeout($scope.updateRows, 5000);
+                        })
+                };
+
                 $http.get('http://localhost:8080/getLastN/5/').
                 then(function(response) {
-                    $scope.prices = response.data;
-                    console.log(response.statusText);
+
+                    $scope.matches = response.data;
+
+                    //update our marker of the last update we've seen
+                    lastUpdate = $scope.matches[$scope.matches.length - 1];
+                    console.log('calling updaterows');
+//                    start updating the table every 5 seconds
+                    $scope.updateRows();
                 });
             });
 
     </script>
 </head>
 <body>
-    <div ng-controller="Prices">
-        <p>Prices: {{prices[0]}}</p>
+    <div ng-controller="Matches">
+        <p>Most recent price: {{matches[matches.length - 1].size}}</p>
+
+        <table>
+            <tr>
+                <th>Sequence Number</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Side</th>
+            </tr>
+            <tr ng-repeat="match in matches">
+            <!--<tr>-->
+                <td>{{match.sequence}}</td>
+                <td>{{match.size}}</td>
+                <td>{{match.price}}</td>
+                <td>{{match.side}}</td>
+            </tr>
+        </table>
     </div>
 
 
