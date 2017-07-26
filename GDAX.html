@@ -12,11 +12,12 @@
         app.controller('Matches',
             function($scope, $http, $timeout) {
 
-                var lastUpdate;
+                $scope.lastUpdate = "";
+                $scope.lastUpdateLength = 0;
                 var tempMatches = [];
 
                 $scope.updateRows = function(){
-                    $http.get('http://localhost:8080/getUpdates/' + lastUpdate['sequence'])
+                    $http.get('http://localhost:8080/gdax/getUpdates/' + $scope.lastUpdate)
                         .then(function(response){
 
                             //update our marker of the last update we've seen
@@ -28,19 +29,20 @@
                                 //add updates to matches variable
 //                                $scope.matches.push(response.data);
 
-                                tempMatches = angular.copy(response.data);
-                                $scope.matches = angular.copy(tempMatches);
+//                                tempMatches = angular.copy(response.data);
+//                                $scope.matches = angular.copy(tempMatches);
+                                $scope.matches = angular.copy(response.data);
 
-//                                $scope.matches = angular.copy(response.data);
+                                //update lastUpdate variable for subsequent REST calls
+                                $scope.lastUpdate = $scope.matches[$scope.matches.length - 1]['sequence'];
 
-                                lastUpdate.update = angular.copy(tempMatches[tempMatches.length - 1]);
+                                //clear off the end of the matches list so we're always displaying 30 results
+//                                $scope.matches.splice(0, 0);
 
-                                //clear the variable after we've posted updates
-
-
-                                console.log('Last update: ' + lastUpdate['sequence']);
+                                console.log('Last update: ' + $scope.lastUpdate);
                                 console.log('Ends of tempMatches: ' + tempMatches[0]['sequence'] + ', ' + tempMatches[tempMatches.length - 1]['sequence']);
                                 console.log('Matches: ' + $scope.matches.length);
+                                console.log('response data length: ' + response.data.length);
                             }
 
 
@@ -49,13 +51,13 @@
                         })
                 };
 
-                $http.get('http://localhost:8080/getLastN/5/').
+                $http.get('http://localhost:8080/gdax/getLastN/30/').
                 then(function(response) {
 
                     tempMatches = angular.copy(response.data);
 
                     //update our marker of the last update we've seen
-                    lastUpdate = angular.copy(tempMatches[tempMatches.length - 1]);
+                    $scope.lastUpdate = angular.copy(tempMatches[tempMatches.length - 1]['sequence']);
                     $scope.matches = angular.copy(tempMatches);
 
                     console.log('calling updaterows');
