@@ -27,58 +27,6 @@
     <script>
         var app = angular.module('GDAX', []);
 
-        app.controller('Matches',
-            function($scope, $http, $timeout) {
-
-                $scope.lastUpdate = "";
-                $scope.lastUpdateLength = 0;
-
-                $scope.updateRows = function(){
-                    $http.get('http://localhost:8080/gdax/getUpdates/' + $scope.lastUpdate)
-                        .then(function(response){
-
-                            //update our marker of the last update we've seen
-                            //make sure there's at least one update
-                            if(response.data.length > 0) {
-
-                                //add updates to matches variable
-//                                $scope.matches.push(response.data);
-
-                                $scope.matches = angular.copy(response.data);
-
-                                //update lastUpdate variable for subsequent REST calls
-                                $scope.lastUpdate = $scope.matches[0]['sequence'];
-
-                                console.log('Last update: ' + $scope.lastUpdate);
-                                console.log('Matches: ' + $scope.matches.length);
-                                console.log('response data length: ' + response.data.length);
-                            }
-
-
-                            //otherwise, just wait another second
-                            $timeout($scope.updateRows, 5000);
-                        })
-                };
-
-                $http.get('http://localhost:8080/gdax/getLastN/30/').
-                then(function(response) {
-
-                    $scope.matches = angular.copy(response.data);
-
-                    //update our marker of the last update we've seen
-                    $scope.lastUpdate = angular.copy($scope.matches[$scope.matches.length - 1]['sequence']);
-
-                    console.log('calling updaterows');
-//                    start updating the table every 5 seconds
-                    $scope.updateRows();
-                });
-            });
-
-    </script>
-
-    <script>
-        var app = angular.module('GDAX', []);
-
         app.controller('Alerts',
         function($scope, $http, $timeout){
 
@@ -87,16 +35,16 @@
             $scope.updateAlerts = function() {
                 if($scope.formData.alertInput !== null) {
 
-
                     $http.get('http://localhost:8080/gdax/checkAlerts/' + $scope.formData.alertInput)
                         .then(function (response) {
                             $scope.alerts = angular.copy(response.data)
 
                             console.log("calling updateAlerts")
 
-                            $timeout($scope.updateAlerts, 5000);
+
                         })
                 }
+                $timeout($scope.updateAlerts, 5000);
             }
 
             $scope.updateAlerts();
@@ -133,10 +81,10 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li>
-                        <a href="#">Prices</a>
+                        <a href="index.html">Prices</a>
                     </li>
                     <li>
-                        <a href="/alerts.html">Alerts</a>
+                        <a href="#">Alerts</a>
                     </li>
                     <li>
                         <a href="#">Contact</a>
@@ -174,29 +122,6 @@
                 <tr ng-repeat="alert in alerts">
                     <td>{{alert.alert_value}}</td>
                     <td>{{alert.triggered}}</td>
-                </tr>
-            </table>
-        </div>
-
-        <br><br><br>
-
-        <!-- Table of Match Data -->
-        <div ng-controller="Matches">
-            <p class="popover-title">Most recent trade: {{matches[0].sequence}}</p>
-
-            <table class="table-bordered table">
-                <tr>
-                    <th>Sequence Number</th>
-                    <th>Size</th>
-                    <th>Price</th>
-                    <th>Side</th>
-                </tr>
-                <tr ng-repeat="match in matches | orderBy: '-sequence'">
-                    <!--<tr>-->
-                    <td>{{match.sequence}}</td>
-                    <td>{{match.size}}</td>
-                    <td>{{match.price}}</td>
-                    <td>{{match.side}}</td>
                 </tr>
             </table>
         </div>
