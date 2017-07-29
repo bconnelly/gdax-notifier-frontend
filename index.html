@@ -15,6 +15,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
+    <link href="css/ethstyle.css" rel="stylesheet">
     <style>
     body {
         padding-top: 70px;
@@ -23,9 +24,10 @@
     </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-nvd3/1.0.9/angular-nvd3.min.js"></script>
 
     <script>
-        var app = angular.module('GDAX', []);
+        var app = angular.module('GDAX', [['nvd3']]);
 
         app.controller('Matches',
             function($scope, $http, $timeout) {
@@ -74,33 +76,84 @@
                 });
             });
 
-    </script>
-
-    <script>
-        var app = angular.module('GDAX', []);
-
         app.controller('Alerts',
-        function($scope, $http, $timeout){
+            function($scope, $http){
 
-            $scope.formData = {alertInput: null};
+                $scope.formData = {alertInput: null};
 
-            $scope.updateAlerts = function() {
-                if($scope.formData.alertInput !== null) {
+                $scope.updateAlerts = function() {
+                    if($scope.formData.alertInput !== null) {
+
+                        $http.get('http://localhost:8080/gdax/checkAlerts/' + $scope.formData.alertInput)
+                            .then(function (response) {
+                                $scope.alerts = angular.copy(response.data)
+
+                                console.log("calling updateAlerts")
 
 
-                    $http.get('http://localhost:8080/gdax/checkAlerts/' + $scope.formData.alertInput)
-                        .then(function (response) {
-                            $scope.alerts = angular.copy(response.data)
-
-                            console.log("calling updateAlerts")
-
-                            $timeout($scope.updateAlerts, 5000);
-                        })
+                            })
+                    }
                 }
-            }
+            })
 
-            $scope.updateAlerts();
-        })
+        app.controller('Chart',
+            function($scope){
+                $scope.options = {
+                    chart: {
+                        type: 'lineChart',
+                        height: 450,
+                        margin : {
+                            top: 20,
+                            right: 20,
+                            bottom: 40,
+                            left: 55
+                        },
+                        x: function(d){ return d.x; },
+                        y: function(d){ return d.y; },
+                        useInteractiveGuideline: true,
+                        dispatch: {
+                            stateChange: function(e){ console.log("stateChange"); },
+                            changeState: function(e){ console.log("changeState"); },
+                            tooltipShow: function(e){ console.log("tooltipShow"); },
+                            tooltipHide: function(e){ console.log("tooltipHide"); }
+                        },
+                        xAxis: {
+                            axisLabel: 'Time (ms)'
+                        },
+                        yAxis: {
+                            axisLabel: 'Voltage (v)',
+                            tickFormat: function(d){
+                                return d3.format('.02f')(d);
+                            },
+                            axisLabelDistance: -10
+                        },
+                        callback: function(chart){
+                            console.log("!!! lineChart callback !!!");
+                        }
+                    },
+                    title: {
+                        enable: true,
+                        text: 'Title for Line Chart'
+                    },
+                    subtitle: {
+                        enable: true,
+                        text: 'Subtitle for simple line chart. Lorem ipsum dolor sit amet, at eam blandit sadipscing, vim adhuc sanctus disputando ex, cu usu affert alienum urbanitas.',
+                        css: {
+                            'text-align': 'center',
+                            'margin': '10px 13px 0px 7px'
+                        }
+                    },
+                    caption: {
+                        enable: true,
+                        html: '<b>Figure 1.</b> Lorem ipsum dolor sit amet, at eam blandit sadipscing, <span style="text-decoration: underline;">vim adhuc sanctus disputando ex</span>, cu usu affert alienum urbanitas. <i>Cum in purto erat, mea ne nominavi persecuti reformidans.</i> Docendi blandit abhorreant ea has, minim tantas alterum pro eu. <span style="color: darkred;">Exerci graeci ad vix, elit tacimates ea duo</span>. Id mel eruditi fuisset. Stet vidit patrioque in pro, eum ex veri verterem abhorreant, id unum oportere intellegam nec<sup>[1, <a href="https://github.com/krispo/angular-nvd3" target="_blank">2</a>, 3]</sup>.',
+                        css: {
+                            'text-align': 'justify',
+                            'margin': '10px 13px 0px 7px'
+                        }
+                    }
+                };
+            })
+
     </script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -136,10 +189,10 @@
                         <a href="#">Prices</a>
                     </li>
                     <li>
-                        <a href="/alerts.html">Alerts</a>
+                        <a href="#">Nothin'</a>
                     </li>
                     <li>
-                        <a href="#">Contact</a>
+                        <a href="#">More Nothin'</a>
                     </li>
                 </ul>
             </div>
@@ -163,8 +216,13 @@
         </div>
         <!-- /.row -->
 
-        <div ng-controller="Alerts" class="input-lg">
-            <input ng-model="formData.alertInput">
+
+        <div ng-controller="Alerts" class="input-lg columnRight">
+
+            <form ng-submit="updateAlerts()">
+                <input class="input-lg" ng-model="formData.alertInput" placeholder="Type a name and press enter"
+                       style="width: 280px">
+            </form>
 
             <table class="table-bordered table">
                 <tr>
@@ -178,29 +236,29 @@
             </table>
         </div>
 
-        <br><br><br>
-
         <!-- Table of Match Data -->
-        <div ng-controller="Matches">
-            <p class="popover-title">Most recent trade: {{matches[0].sequence}}</p>
+        <div ng-controller="Matches" class="columnLeft">
 
             <table class="table-bordered table">
                 <tr>
-                    <th>Sequence Number</th>
+                    <th>Time</th>
                     <th>Size</th>
                     <th>Price</th>
                     <th>Side</th>
                 </tr>
                 <tr ng-repeat="match in matches | orderBy: '-sequence'">
                     <!--<tr>-->
-                    <td>{{match.sequence}}</td>
-                    <td>{{match.size}}</td>
-                    <td>{{match.price}}</td>
-                    <td>{{match.side}}</td>
+                    <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.time.substring(11, 19)}}</td>
+                    <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.size}}</td>
+                    <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.price}}</td>
+                    <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.side}}</td>
                 </tr>
             </table>
         </div>
 
+        <div ng-controller="Chart">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
     </div>
     <!-- /.container -->
 

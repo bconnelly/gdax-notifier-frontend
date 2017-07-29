@@ -1,0 +1,25 @@
+div.columnLeft{
+    float: left;
+}
+
+div.columnRight{
+    float: right;
+}
+
+/*.columnRight:after{*/
+    /*padding-top: 28.125%;*/
+/*}*/
+
+/*.columnLeft:after{*/
+    /*padding-top: 28.125%;*/
+/*}*/
+
+.buy{
+    color: darkgreen;
+    font-weight: bold;
+}
+
+.sell{
+    color: darkred;
+    font-weight: bold;
+}
