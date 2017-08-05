@@ -6,6 +6,10 @@ div.columnRight{
     float: right;
 }
 
+div.columnCenter{
+    float: none;
+    align-self: center;
+}
 /*.columnRight:after{*/
     /*padding-top: 28.125%;*/
 /*}*/
