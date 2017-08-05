@@ -42,11 +42,17 @@
                             //update our marker of the last update we've seen
                             //make sure there's at least one update
                             if(response.data.length > 0) {
-
                                 //add updates to matches variable
-//                                $rootScope.matches.push(response.data);
+                                for(var i = 0; i < response.data.length; i++){
+                                    $rootScope.matches.push(response.data[i]);
+                                }
 
-                                $rootScope.matches = angular.copy(response.data);
+                                //remove rows off the bottom of the list equal to the number added
+                                for(var i = 0; i < response.data.length; i++){
+                                    $rootScope.matches.splice(response.data.length - 1 - i, 1);
+                                }
+
+//                                $rootScope.matches = angular.copy(response.data);
 
                                 //update lastUpdate variable for subsequent REST calls
                                 $scope.lastUpdate = $rootScope.matches[0]['sequence'];
@@ -58,17 +64,17 @@
 
 
                             //otherwise, just wait another second
-                            $timeout($scope.updateRows, 5000);
+                            $timeout($scope.updateRows, 1000);
                         })
                 };
 
                 $http.get('http://localhost:8080/gdax/getLastN/30/').
                 then(function(response) {
 
-                    $scope.matches = angular.copy(response.data);
+                    $rootScope.matches = angular.copy(response.data);
 
                     //update our marker of the last update we've seen
-                    $scope.lastUpdate = angular.copy($scope.matches[$scope.matches.length - 1]['sequence']);
+                    $scope.lastUpdate = angular.copy($rootScope.matches[$rootScope.matches.length - 1]['sequence']);
 
                     console.log('calling updaterows');
 //                    start updating the table every 5 seconds
@@ -247,7 +253,7 @@
     </nav>
 
     <!-- Page Content -->
-    <div class="container">
+    <div class="container hundred-percent-height">
 
         <div class="row">
             <div class="col-lg-12 text-center">
@@ -282,23 +288,27 @@
         </div>
 
         <!-- Table of Match Data -->
-        <div ng-controller="Matches" class="columnLeft">
 
-            <table class="table-bordered table">
-                <tr>
-                    <th>Time</th>
-                    <th>Size</th>
-                    <th>Price</th>
-                    <th>Side</th>
-                </tr>
-                <tr ng-repeat="match in matches | orderBy: '-sequence'">
-                    <!--<tr>-->
-                    <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.time.substring(11, 19)}}</td>
-                    <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.size}}</td>
-                    <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.price}}</td>
-                    <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.side}}</td>
-                </tr>
-            </table>
+        <div class="hundred-percent-height">
+            <div ng-controller="Matches" class="columnLeft hundred-percent-height">
+
+                <p>Table length: {{matches.length}}</p>
+                <table class="table-bordered table hundred-percent-height">
+                    <tr>
+                        <th>Time</th>
+                        <th>Size</th>
+                        <th>Price</th>
+                        <th>Side</th>
+                    </tr>
+                    <tr ng-repeat="match in matches | orderBy: '-sequence'">
+                        <!--<tr>-->
+                        <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.time.substring(11, 19)}}</td>
+                        <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.size}}</td>
+                        <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.price}}</td>
+                        <td ng-class="{'buy': match.side==='buy', 'sell': match.side==='sell'}">{{match.side}}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <!--<div ng-controller="Chart" class="columnCenter">-->

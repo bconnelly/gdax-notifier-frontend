@@ -1,3 +1,7 @@
+body, html {
+    height: 100%;
+}
+
 div.columnLeft{
     float: left;
 }
@@ -26,4 +30,12 @@ div.columnCenter{
 .sell{
     color: darkred;
     font-weight: bold;
+}
+
+.table-fix-height {
+    height:300px;
+}
+
+.hundred-percent-height {
+    height: 100vh;
 }
