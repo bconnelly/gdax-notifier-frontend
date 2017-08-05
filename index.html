@@ -24,10 +24,15 @@
     </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-nvd3/1.0.9/angular-nvd3.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-nvd3/1.0.9/angular-nvd3.min.js"></script>-->
+    <script src="js/fusioncharts.js"></script>
+    <script src="js/angular-fusioncharts.min.js"></script>
+
+
+
 
     <script>
-        var app = angular.module('GDAX', ['nvd3']);
+        var app = angular.module('GDAX', ['ng-fusioncharts']);
 
         app.controller('Matches',
             function($rootScope,  $scope, $http, $timeout) {
@@ -102,109 +107,34 @@
                 }
             })
 
-//        app.controller('Chart',
-//            function($scope){
-//                $scope.options = {
-//                    chart: {
-//                        type: 'lineChart',
-//                        height: 450,
-//                        margin : {
-//                            top: 20,
-//                            right: 20,
-//                            bottom: 40,
-//                            left: 55
-//                        },
-//                        x: function(d){ return d.x; },
-//                        y: function(d){ return d.y; },
-//                        useInteractiveGuideline: true,
-//                        dispatch: {
-//                            stateChange: function(e){ console.log("stateChange"); },
-//                            changeState: function(e){ console.log("changeState"); },
-//                            tooltipShow: function(e){ console.log("tooltipShow"); },
-//                            tooltipHide: function(e){ console.log("tooltipHide"); }
-//                        },
-//                        xAxis: {
-//                            axisLabel: 'Time (ms)'
-//                        },
-//                        yAxis: {
-//                            axisLabel: 'Voltage (v)',
-//                            tickFormat: function(d){
-//                                return d3.format('.02f')(d);
-//                            },
-//                            axisLabelDistance: -10
-//                        },
-//                        callback: function(chart){
-//                            console.log("!!! lineChart callback !!!");
-//                        }
-//                    },
-//                    title: {
-//                        enable: true,
-//                        text: 'Title for Line Chart'
-//                    },
-//                    subtitle: {
-//                        enable: true,
-//                        text: 'Subtitle for simple line chart. Lorem ipsum dolor sit amet, at eam blandit sadipscing, vim adhuc sanctus disputando ex, cu usu affert alienum urbanitas.',
-//                        css: {
-//                            'text-align': 'center',
-//                            'margin': '10px 13px 0px 7px'
-//                        }
-//                    },
-//                    caption: {
-//                        enable: true,
-//                        html: '<b>Figure 1.</b> Lorem ipsum dolor sit amet, at eam blandit sadipscing, <span style="text-decoration: underline;">vim adhuc sanctus disputando ex</span>, cu usu affert alienum urbanitas. <i>Cum in purto erat, mea ne nominavi persecuti reformidans.</i> Docendi blandit abhorreant ea has, minim tantas alterum pro eu. <span style="color: darkred;">Exerci graeci ad vix, elit tacimates ea duo</span>. Id mel eruditi fuisset. Stet vidit patrioque in pro, eum ex veri verterem abhorreant, id unum oportere intellegam nec<sup>[1, <a href="https://github.com/krispo/angular-nvd3" target="_blank">2</a>, 3]</sup>.',
-//                        css: {
-//                            'text-align': 'justify',
-//                            'margin': '10px 13px 0px 7px'
-//                        }
-//                    }
-//                };
-//
-//                $scope.data = sinAndCos();
-//
-//                /*Random Data Generator */
-//                function sinAndCos() {
-//                    var sin = [],sin2 = [],
-//                        cos = [];
-//
-//                    //Data is represented as an array of {x,y} pairs.
-//                    for (var i = 0; i < 100; i++) {
-//                        sin.push({x: i, y: Math.sin(i/10)});
-//                        sin2.push({x: i, y: i % 10 == 5 ? null : Math.sin(i/10) *0.25 + 0.5});
-//                        cos.push({x: i, y: .5 * Math.cos(i/10+ 2) + Math.random() / 10});
-//                    }
-//
-//                    //Line chart data should be sent as an array of series objects.
-//                    return [
-//                        {
-//                            values: sin,      //values - represents the array of {x,y} data points
-//                            key: 'Sine Wave', //key  - the name of the series.
-//                            color: '#ff7f0e'  //color - optional: choose your own line color.
-//                        },
-//                        {
-//                            values: cos,
-//                            key: 'Cosine Wave',
-//                            color: '#2ca02c'
-//                        },
-//                        {
-//                            values: sin2,
-//                            key: 'Another sine wave',
-//                            color: '#7777ff',
-//                            area: true      //area - set to true if you want this line to turn into a filled area chart.
-//                        }
-//                    ];
-//                }
-////                $scope.data = getData();
-////
-////                function getData(){
-////                    var data = [];
-////
-////                    for(var i = 0; i < $scope.matches; i++){
-////                        data.push({x: $scope.matches[i].time.substring(11, 19), y: $scope.matches[i].price});
-////                    }
-////                    return data;
-////                }
-//
-//            })
+        app.controller('Chart',
+            function($scope){
+                $scope.dataSource = {
+                    chart: {
+                        caption: "Harry's SuperMart",
+                        subCaption: "Top 5 stores in last month by revenue",
+                        numberPrefix: "$",
+                        theme: "fint"
+                    },
+                    data: [{
+                        label: "Bakersfield Central",
+                        value: "880000"
+                    }, {
+                        label: "Garden Groove harbour",
+                        value: "730000"
+                    }, {
+                        label: "Los Angeles Topanga",
+                        value: "590000"
+                    }, {
+                        label: "Compton-Rancho Dom",
+                        value: "520000"
+                    }, {
+                        label: "Daly City Serramonte",
+                        value: "330000"
+                    }]
+                };
+
+            });
 
     </script>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -267,6 +197,16 @@
         </div>
         <!-- /.row -->
 
+        <div ng-controller="Chart" class="columnCenter">
+
+            <fusioncharts
+                    width="800"
+                    height="400"
+                    type="line"
+                    datasource="{{dataSource}}">
+            </fusioncharts>
+
+        </div>
 
         <div ng-controller="Alerts" class="input-lg columnRight">
 
@@ -311,9 +251,7 @@
             </div>
         </div>
 
-        <!--<div ng-controller="Chart" class="columnCenter">-->
-            <!--<nvd3 options="options" data="data"></nvd3>-->
-        <!--</div>-->
+
     </div>
     <!-- /.container -->
 
