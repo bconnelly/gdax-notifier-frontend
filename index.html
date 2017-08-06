@@ -35,10 +35,23 @@
         var app = angular.module('GDAX', ['ng-fusioncharts']);
 
         app.controller('Matches',
-            function($rootScope,  $scope, $http, $timeout) {
+            function($rootScope, $scope, $http, $timeout) {
 
                 $scope.lastUpdate = "";
                 $scope.lastUpdateLength = 0;
+//                $scope.dataSource = {
+//                    chart: {
+//                        caption: "Ethereum/USD",
+//                        subCaption: "",
+//                        numberPrefix: "",
+//                        theme: "fint",
+//                        yAxisMaxValue: "263",
+//                        yAxisMinValue: "259",
+//                        showValues: "0"
+//                    },
+//                    //label, value
+//                    data: []
+//                };
 
                 $scope.updateRows = function(){
                     $http.get('http://localhost:8080/gdax/getUpdates/' + $scope.lastUpdate)
@@ -49,22 +62,26 @@
                             if(response.data.length > 0) {
                                 //add updates to matches variable
                                 for(var i = 0; i < response.data.length; i++){
+                                    //update table
                                     $rootScope.matches.push(response.data[i]);
+
+//                                    //update chart
+//                                    var newData = {label: response.data[i]["time"].substring(11, 19), value: response.data[i]["price"]};
+//                                    $scope.dataSource.data.push(newData);
                                 }
 
                                 //remove rows off the bottom of the list equal to the number added
                                 for(var i = 0; i < response.data.length; i++){
                                     $rootScope.matches.splice(response.data.length - 1 - i, 1);
+//                                    $scope.dataSource.data.splice(response.data.length - 1 - i, 1);
                                 }
-
-//                                $rootScope.matches = angular.copy(response.data);
 
                                 //update lastUpdate variable for subsequent REST calls
                                 $scope.lastUpdate = $rootScope.matches[0]['sequence'];
 
-                                console.log('Last update: ' + $scope.lastUpdate);
-                                console.log('Matches: ' + $rootScope.matches.length);
-                                console.log('response data length: ' + response.data.length);
+//                                console.log('Last update: ' + $scope.lastUpdate);
+//                                console.log('Matches: ' + $rootScope.matches.length);
+//                                console.log('response data length: ' + response.data.length);
                             }
 
 
@@ -77,6 +94,14 @@
                 then(function(response) {
 
                     $rootScope.matches = angular.copy(response.data);
+
+//                    //update the chart data container
+//                    for(var i = 0; i < response.data.length; i++){
+//                        var newData = {label: response.data[i]["time"].substring(11, 19), value: response.data[i]["price"]};
+//                        console.log("Grabbing data for chart: " + newData.label + " AND " + newData.value);
+//                        $scope.dataSource.data.push(newData);
+//                    }
+
 
                     //update our marker of the last update we've seen
                     $scope.lastUpdate = angular.copy($rootScope.matches[$rootScope.matches.length - 1]['sequence']);
@@ -108,31 +133,86 @@
             })
 
         app.controller('Chart',
-            function($scope){
+            function($rootScope, $scope, $http, $timeout){
                 $scope.dataSource = {
                     chart: {
-                        caption: "Harry's SuperMart",
-                        subCaption: "Top 5 stores in last month by revenue",
+                        caption: "Ethereum/USD",
+                        subCaption: "",
                         numberPrefix: "$",
-                        theme: "fint"
+                        theme: "fint",
+                        showValues: "0",
+//                        yAxisMaxValue: ($scope.maxPrice + 3),
+//                        yAxisMinValue: ($scope.minPrice - 3)
+                        yAxisMaxValue: "270",
+                        yAxisMinValue: "250"
+
                     },
-                    data: [{
-                        label: "Bakersfield Central",
-                        value: "880000"
-                    }, {
-                        label: "Garden Groove harbour",
-                        value: "730000"
-                    }, {
-                        label: "Los Angeles Topanga",
-                        value: "590000"
-                    }, {
-                        label: "Compton-Rancho Dom",
-                        value: "520000"
-                    }, {
-                        label: "Daly City Serramonte",
-                        value: "330000"
-                    }]
+                    //label, value
+                    data: []
                 };
+                $scope.lastUpdate = "";
+                $scope.minPrice = 999999999;
+                $scope.maxPrice = 10;
+
+                $scope.updateChart = function(){
+                    $http.get('http://localhost:8080/gdax/getUpdates/' + $scope.lastUpdate)
+                        .then(function(response){
+                            if(response.data.length > 0){
+
+                                for(var i = 0; i < response.data.length; i++) {
+
+                                    //update min/max values
+                                    if (response.data[i]["price"] > $scope.maxPrice) {
+                                        $scope.maxPrice = response.data[i]["price"];
+                                        console.log("New max price: " + $scope.maxPrice);
+                                    }
+                                    if (response.data[i]["price"] < $scope.minPrice) {
+                                        $scope.minPrice = response.data[i]["price"];
+                                        console.log("New min price: " + $scope.minPrice);
+                                    }
+
+                                    //set values in datasource variable
+                                    var newData = {
+                                        label: response.data[i]["time"].substring(11, 19),
+                                        value: response.data[i]["price"]
+                                    };
+                                    $scope.dataSource.data.push(newData);
+
+                                    //remove old values
+                                    $scope.dataSource.data.splice(response.data.length - 1 - i, 1);
+                                }
+                                //update record of last update
+                                $scope.lastUpdate = response.data[0]['sequence'];
+                            }
+
+
+                            //otherwise, just wait another second
+                            $timeout($scope.updateChart, 1000);
+                        })
+                };
+
+                $http.get('http://localhost:8080/gdax/getLastN/60/').
+                    then(function(response) {
+
+                        for(var i = 0; i < response.data.length; i++){
+                            //update min/max values
+                            if(response.data[i]["price"] > $scope.maxPrice){
+                                $scope.maxPrice = response.data[i]["price"];
+                            }
+                            if(response.data[i]["price"] < $scope.minPrice){
+                                $scope.minPrice = response.data[i]["price"];
+                            }
+
+                            //set values in datasource variable
+                            var newData = {label: response.data[i]["time"].substring(11, 19), value: response.data[i]["price"]};
+                            $scope.dataSource.data.push(newData);
+                        }
+
+                    //update our marker of the last update we've seen
+                    $scope.lastUpdate = angular.copy(response.data[response.data.length - 1]['sequence']);
+
+                        $scope.updateChart();
+                    });
 
             });
 
@@ -230,7 +310,7 @@
         <!-- Table of Match Data -->
 
         <div class="hundred-percent-height">
-            <div ng-controller="Matches" class="columnLeft hundred-percent-height">
+            <div ng-controller="Chart" class="columnLeft hundred-percent-height">
 
                 <p>Table length: {{matches.length}}</p>
                 <table class="table-bordered table hundred-percent-height">

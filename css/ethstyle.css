@@ -13,6 +13,7 @@ div.columnRight{
 div.columnCenter{
     float: none;
     align-self: center;
+    align-content: center;
 }
 /*.columnRight:after{*/
     /*padding-top: 28.125%;*/
